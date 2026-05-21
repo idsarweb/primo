@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Verificador de Números Primos</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+
+    .card {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 16px;
+      padding: 2rem;
+      max-width: 500px;
+      width: 100%;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    }
+
+    h1 {
+      color: #f1f5f9;
+      font-size: 1.5rem;
+      text-align: center;
+      margin-bottom: 0.25rem;
+    }
+
+    .subtitle {
+      color: #64748b;
+      text-align: center;
+      font-size: 0.875rem;
+      margin-bottom: 2rem;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .tab {
+      flex: 1;
+      padding: 0.75rem 1rem;
+      border: 1px solid #334155;
+      border-radius: 10px;
+      background: transparent;
+      color: #94a3b8;
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .tab:hover { border-color: #6366f1; color: #c7d2fe; }
+    .tab.active {
+      background: #6366f1;
+      border-color: #6366f1;
+      color: #fff;
+    }
+
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    .field {
+      margin-bottom: 1rem;
+    }
+
+    label {
+      display: block;
+      color: #94a3b8;
+      font-size: 0.8rem;
+      margin-bottom: 0.375rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    input {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border: 1px solid #334155;
+      border-radius: 10px;
+      background: #0f172a;
+      color: #f1f5f9;
+      font-size: 1rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    input:focus { border-color: #6366f1; }
+
+    input::placeholder { color: #475569; }
+
+    .row { display: flex; gap: 0.75rem; }
+
+    .btn {
+      width: 100%;
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 10px;
+      background: #6366f1;
+      color: #fff;
+      font-size: 0.9375rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn:hover { background: #818cf8; }
+    .btn:active { transform: scale(0.98); }
+
+    .result {
+      margin-top: 1.25rem;
+      padding: 1rem 1.25rem;
+      border-radius: 10px;
+      font-size: 0.9375rem;
+      display: none;
+    }
+
+    .result.show { display: block; }
+
+    .result.success {
+      background: #064e3b;
+      border: 1px solid #059669;
+      color: #6ee7b7;
+    }
+
+    .result.fail {
+      background: #7f1d1d;
+      border: 1px solid #dc2626;
+      color: #fca5a5;
+    }
+
+    .result.info {
+      background: #1e3a5f;
+      border: 1px solid #3b82f6;
+      color: #93c5fd;
+    }
+
+    .result.error {
+      background: #451a03;
+      border: 1px solid #ea580c;
+      color: #fdba74;
+    }
+
+    .range-output {
+      margin-top: 0.75rem;
+      color: #cbd5e1;
+      font-family: 'Cascadia Code', 'Fira Code', monospace;
+      font-size: 0.875rem;
+      line-height: 1.8;
+      word-break: break-all;
+    }
+
+    .count {
+      color: #818cf8;
+      font-weight: 600;
+      margin-top: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>🔢 Verificador de Primos</h1>
+    <p class="subtitle">Comprobá si un número es primo o encontrá primos en un rango</p>
+
+    <div class="tabs">
+      <button class="tab active" data-panel="single">Verificar uno</button>
+      <button class="tab" data-panel="range">Listar rango</button>
+    </div>
+
+    <!-- Panel: verificar uno -->
+    <div id="panel-single" class="panel active">
+      <div class="field">
+        <label for="num">Número entero</label>
+        <input id="num" type="text" placeholder="Ej: 17" autocomplete="off">
+      </div>
+      <button class="btn" onclick="verificar()">Verificar</button>
+      <div id="result-single" class="result"></div>
+    </div>
+
+    <!-- Panel: listar rango -->
+    <div id="panel-range" class="panel">
+      <div class="row">
+        <div class="field" style="flex:1;">
+          <label for="inicio">Desde</label>
+          <input id="inicio" type="text" placeholder="Ej: 10" autocomplete="off">
+        </div>
+        <div class="field" style="flex:1;">
+          <label for="fin">Hasta</label>
+          <input id="fin" type="text" placeholder="Ej: 50" autocomplete="off">
+        </div>
+      </div>
+      <button class="btn" onclick="listarRango()">Buscar primos</button>
+      <div id="result-range" class="result"></div>
+    </div>
+  </div>
+
+  <script>
+    // ─── primality check ───
+    function esPrimo(n) {
+      if (!Number.isInteger(n) || n < 2) return false;
+      if (n === 2) return true;
+      if (n % 2 === 0) return false;
+      const limite = Math.floor(Math.sqrt(n));
+      for (let i = 3; i <= limite; i += 2) {
+        if (n % i === 0) return false;
+      }
+      return true;
+    }
+
+    // ─── helpers ───
+    function showResult(id, type, html) {
+      const el = document.getElementById(id);
+      el.className = 'result show ' + type;
+      el.innerHTML = html;
+    }
+
+    function parseEntero(raw, label) {
+      if (raw.trim() === '') return { error: `El campo "${label}" está vacío.` };
+      const n = Number(raw);
+      if (!Number.isInteger(n)) return { error: `"${raw}" no es un número entero válido.` };
+      return { value: n };
+    }
+
+    // ─── verificar uno ───
+    function verificar() {
+      const raw = document.getElementById('num').value;
+      const parsed = parseEntero(raw, 'Número');
+      if (parsed.error) {
+        showResult('result-single', 'error', '⚠️ ' + parsed.error);
+        return;
+      }
+      const n = parsed.value;
+      if (esPrimo(n)) {
+        showResult(
+          'result-single',
+          'success',
+          `<strong>${n.toLocaleString()}</strong> ✅ es primo.`
+        );
+      } else if (n < 2) {
+        showResult(
+          'result-single',
+          'info',
+          `<strong>${n.toLocaleString()}</strong> ℹ️ no es primo (por definición, los números menores que 2 no son primos).`
+        );
+      } else {
+        showResult(
+          'result-single',
+          'fail',
+          `<strong>${n.toLocaleString()}</strong> ❌ NO es primo.`
+        );
+      }
+    }
+
+    // ─── listar rango ───
+    function listarRango() {
+      const rawInicio = document.getElementById('inicio').value;
+      const rawFin = document.getElementById('fin').value;
+      const pi = parseEntero(rawInicio, 'Desde');
+      if (pi.error) { showResult('result-range', 'error', '⚠️ ' + pi.error); return; }
+      const pf = parseEntero(rawFin, 'Hasta');
+      if (pf.error) { showResult('result-range', 'error', '⚠️ ' + pf.error); return; }
+
+      let inicio = pi.value;
+      let fin = pf.value;
+      if (inicio > fin) {
+        showResult('result-range', 'error', `⚠️ El inicio (${inicio}) no puede ser mayor que el fin (${fin}).`);
+        return;
+      }
+
+      const primos = [];
+      if (fin - inicio > 100_000) {
+        showResult(
+          'result-range',
+          'error',
+          '⚠️ El rango es muy grande (más de 100.000 números). Probá con un rango más chico.'
+        );
+        return;
+      }
+
+      for (let i = inicio; i <= fin; i++) {
+        if (esPrimo(i)) primos.push(i);
+      }
+
+      if (primos.length === 0) {
+        showResult(
+          'result-range',
+          'info',
+          `No hay primos entre <strong>${inicio.toLocaleString()}</strong> y <strong>${fin.toLocaleString()}</strong>.`
+        );
+      } else {
+        const lines = [];
+        for (let i = 0; i < primos.length; i += 15) {
+          lines.push(primos.slice(i, i + 15).map(p => p.toLocaleString()).join('  '));
+        }
+        showResult(
+          'result-range',
+          'success',
+          `<div class="range-output">${lines.join('<br>')}</div>
+           <div class="count">📊 ${primos.length.toLocaleString()} primos entre ${inicio.toLocaleString()} y ${fin.toLocaleString()}</div>`
+        );
+      }
+    }
+
+    // ─── tabs ───
+    document.querySelectorAll('.tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+        tab.classList.add('active');
+        document.getElementById('panel-' + tab.dataset.panel).classList.add('active');
+      });
+    });
+
+    // ─── Enter key submits ───
+    document.addEventListener('keydown', (e) => {
+      if (e.key !== 'Enter') return;
+      if (document.getElementById('panel-single').classList.contains('active')) {
+        verificar();
+      } else {
+        listarRango();
+      }
+    });
+  </script>
+</body>
+</html>

@@ -3,186 +3,378 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Verificador de Números Primos</title>
+  <title>Torre del Mago — Oráculo de Primos</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
+    /* ─── stone wall background with CRT scanlines ─── */
     body {
-      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      font-family: 'VT323', 'Courier New', monospace;
+      font-size: 20px;
       min-height: 100vh;
-      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      background-color: #1a1a0a;
+      background-image:
+        /* scanlines */
+        repeating-linear-gradient(
+          0deg,
+          transparent,
+          transparent 3px,
+          rgba(0,0,0,0.08) 3px,
+          rgba(0,0,0,0.08) 6px
+        ),
+        /* dungeon stone */
+        linear-gradient(180deg, #0d0d05 0%, #1a1a0a 30%, #222210 100%);
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 1rem;
+      padding: 1.5rem;
+      image-rendering: pixelated;
     }
 
+    /* ─── parchment torches glow ─── */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 30px; left: 30px;
+      width: 80px; height: 80px;
+      background: radial-gradient(circle, rgba(255,180,40,0.15) 0%, transparent 70%);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+    body::after {
+      content: '';
+      position: fixed;
+      top: 30px; right: 30px;
+      width: 80px; height: 80px;
+      background: radial-gradient(circle, rgba(255,180,40,0.12) 0%, transparent 70%);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    /* ─── main scroll / parchment card ─── */
     .card {
-      background: #1e293b;
-      border: 1px solid #334155;
-      border-radius: 16px;
-      padding: 2rem;
-      max-width: 500px;
+      background: linear-gradient(175deg, #f5e6c8 0%, #e8d5a3 20%, #f0dca8 50%, #dcc58a 100%);
+      border: 8px solid;
+      border-image: repeating-linear-gradient(
+        45deg,
+        #8B6914 0px, #8B6914 2px,
+        #DAA520 2px, #DAA520 4px,
+        #8B6914 4px, #8B6914 6px
+      ) 8;
+      border-radius: 0;  /* sharp 8-bit corners */
+      padding: 2rem 2rem 1.5rem;
+      max-width: 540px;
       width: 100%;
-      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+      box-shadow:
+        /* inner shadow for depth */
+        inset 0 0 40px rgba(139,105,20,0.3),
+        /* outer stone shadow */
+        8px 8px 0 #2a1a00,
+        16px 16px 0 rgba(0,0,0,0.4);
+      position: relative;
     }
 
-    h1 {
-      color: #f1f5f9;
-      font-size: 1.5rem;
+    /* ─── decorative scroll rivets ─── */
+    .card::before {
+      content: '◆';
+      position: absolute;
+      top: -14px; left: 50%;
+      transform: translateX(-50%);
+      color: #DAA520;
+      font-size: 20px;
+      text-shadow: 2px 2px 0 #5a3a00;
+    }
+    .card::after {
+      content: '◆';
+      position: absolute;
+      bottom: -14px; left: 50%;
+      transform: translateX(-50%);
+      color: #DAA520;
+      font-size: 20px;
+      text-shadow: 2px 2px 0 #5a3a00;
+    }
+
+    /* ─── title area ─── */
+    .title-area {
       text-align: center;
-      margin-bottom: 0.25rem;
+      margin-bottom: 1.5rem;
+      border-bottom: 3px double #8B6914;
+      padding-bottom: 1rem;
+    }
+
+    .title-pixel {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 12px;
+      color: #3a1a00;
+      text-shadow:
+        2px 2px 0 #DAA520,
+        -1px -1px 0 #8B6914;
+      line-height: 1.8;
+      letter-spacing: 1px;
+      image-rendering: pixelated;
+    }
+
+    .title-icon {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 28px;
+      display: block;
+      margin-bottom: 0.5rem;
+      filter: drop-shadow(3px 3px 0 #5a3a00);
     }
 
     .subtitle {
-      color: #64748b;
-      text-align: center;
-      font-size: 0.875rem;
-      margin-bottom: 2rem;
+      color: #5a3a00;
+      font-size: 18px;
+      margin-top: 0.3rem;
+      text-shadow: 1px 1px 0 rgba(218,165,32,0.5);
     }
 
+    /* ─── tabs as stone tablets ─── */
     .tabs {
       display: flex;
-      gap: 0.5rem;
+      gap: 0;
       margin-bottom: 1.5rem;
     }
 
     .tab {
       flex: 1;
-      padding: 0.75rem 1rem;
-      border: 1px solid #334155;
-      border-radius: 10px;
-      background: transparent;
-      color: #94a3b8;
-      font-size: 0.875rem;
+      padding: 0.6rem 0.5rem;
+      border: 3px solid #6b4410;
+      background: linear-gradient(180deg, #8B7355 0%, #6b5030 100%);
+      color: #d4c4a8;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 8px;
       cursor: pointer;
-      transition: all 0.2s;
+      text-align: center;
+      text-transform: uppercase;
+      line-height: 1.5;
+      letter-spacing: 0.5px;
+      image-rendering: pixelated;
+      transition: none;
+      box-shadow:
+        inset 2px 2px 0 rgba(255,255,255,0.1),
+        inset -2px -2px 0 rgba(0,0,0,0.3);
     }
 
-    .tab:hover { border-color: #6366f1; color: #c7d2fe; }
+    .tab:first-child { border-right: none; }
+    .tab:last-child { border-left: none; }
+
+    .tab:hover {
+      background: linear-gradient(180deg, #9b8365 0%, #7b6040 100%);
+      color: #FFD700;
+    }
+
     .tab.active {
-      background: #6366f1;
-      border-color: #6366f1;
-      color: #fff;
+      background: linear-gradient(180deg, #DAA520 0%, #B8860B 100%);
+      border-color: #FFD700;
+      color: #1a0a00;
+      box-shadow:
+        inset 2px 2px 0 rgba(255,255,255,0.3),
+        inset -2px -2px 0 rgba(0,0,0,0.4),
+        0 0 12px rgba(255,215,0,0.4);
     }
 
+    /* ─── panels ─── */
     .panel { display: none; }
     .panel.active { display: block; }
 
     .field {
-      margin-bottom: 1rem;
+      margin-bottom: 0.8rem;
     }
 
     label {
       display: block;
-      color: #94a3b8;
-      font-size: 0.8rem;
-      margin-bottom: 0.375rem;
+      color: #4a2a00;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 9px;
+      margin-bottom: 0.4rem;
       text-transform: uppercase;
-      letter-spacing: 0.05em;
+      letter-spacing: 1px;
+      image-rendering: pixelated;
     }
 
+    /* ─── input (carved stone) ─── */
     input {
       width: 100%;
-      padding: 0.75rem 1rem;
-      border: 1px solid #334155;
-      border-radius: 10px;
-      background: #0f172a;
-      color: #f1f5f9;
-      font-size: 1rem;
+      padding: 0.6rem 0.8rem;
+      border: 4px solid;
+      border-color: #5a3a00 #DAA520 #DAA520 #5a3a00;
+      background: #fffef5;
+      color: #2a1500;
+      font-family: 'VT323', 'Courier New', monospace;
+      font-size: 22px;
       outline: none;
-      transition: border-color 0.2s;
+      image-rendering: pixelated;
+      box-shadow: inset 2px 2px 4px rgba(0,0,0,0.15);
     }
 
-    input:focus { border-color: #6366f1; }
+    input:focus {
+      border-color: #FFD700 #DAA520 #DAA520 #FFD700;
+      box-shadow:
+        inset 2px 2px 4px rgba(0,0,0,0.15),
+        0 0 8px rgba(255,215,0,0.3);
+    }
 
-    input::placeholder { color: #475569; }
+    input::placeholder {
+      color: #a09070;
+      font-style: italic;
+      font-size: 18px;
+    }
 
     .row { display: flex; gap: 0.75rem; }
 
+    /* ─── button (gold seal) ─── */
     .btn {
       width: 100%;
-      padding: 0.75rem 1.5rem;
-      border: none;
-      border-radius: 10px;
-      background: #6366f1;
-      color: #fff;
-      font-size: 0.9375rem;
-      font-weight: 600;
+      padding: 0.7rem 1rem;
+      border: 4px solid;
+      border-color: #FFD700 #8B6914 #8B6914 #FFD700;
+      background: linear-gradient(180deg, #DAA520 0%, #B8860B 60%, #8B6914 100%);
+      color: #1a0a00;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 10px;
       cursor: pointer;
-      transition: all 0.2s;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      image-rendering: pixelated;
+      box-shadow:
+        4px 4px 0 #3a1a00,
+        inset 2px 2px 0 rgba(255,255,255,0.3),
+        inset -2px -2px 0 rgba(0,0,0,0.3);
+      transition: none;
     }
 
-    .btn:hover { background: #818cf8; }
-    .btn:active { transform: scale(0.98); }
+    .btn:hover {
+      background: linear-gradient(180deg, #FFD700 0%, #DAA520 60%, #B8860B 100%);
+      border-color: #FFF8DC #DAA520 #DAA520 #FFF8DC;
+      box-shadow:
+        4px 4px 0 #3a1a00,
+        inset 2px 2px 0 rgba(255,255,255,0.4),
+        inset -2px -2px 0 rgba(0,0,0,0.3),
+        0 0 16px rgba(255,215,0,0.5);
+    }
 
+    .btn:active {
+      transform: translate(2px, 2px);
+      box-shadow:
+        2px 2px 0 #3a1a00,
+        inset 3px 3px 0 rgba(0,0,0,0.3),
+        inset -1px -1px 0 rgba(255,255,255,0.2);
+    }
+
+    /* ─── results as scroll reveals ─── */
     .result {
-      margin-top: 1.25rem;
-      padding: 1rem 1.25rem;
-      border-radius: 10px;
-      font-size: 0.9375rem;
+      margin-top: 1rem;
+      padding: 0.8rem 1rem;
+      border: 4px solid;
+      font-size: 18px;
+      line-height: 1.6;
       display: none;
+      text-shadow: 1px 1px 0 rgba(0,0,0,0.1);
     }
 
     .result.show { display: block; }
 
-    .result.success {
-      background: #064e3b;
-      border: 1px solid #059669;
-      color: #6ee7b7;
+    .result::before {
+      display: block;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 8px;
+      margin-bottom: 0.3rem;
     }
+
+    .result.success {
+      background: linear-gradient(180deg, #e8f5e0 0%, #c8e6c0 100%);
+      border-color: #2d5a1e #4a8c3f #4a8c3f #2d5a1e;
+      color: #1a4a00;
+    }
+    .result.success::before { content: '† EL ORÁCULO HABLA †'; color: #2d5a1e; }
 
     .result.fail {
-      background: #7f1d1d;
-      border: 1px solid #dc2626;
-      color: #fca5a5;
+      background: linear-gradient(180deg, #f5e8e0 0%, #edd4c0 100%);
+      border-color: #6b2020 #a04040 #a04040 #6b2020;
+      color: #4a0000;
     }
+    .result.fail::before { content: '† EL ORÁCULO HABLA †'; color: #6b2020; }
 
     .result.info {
-      background: #1e3a5f;
-      border: 1px solid #3b82f6;
-      color: #93c5fd;
+      background: linear-gradient(180deg, #e8eff5 0%, #d0dce8 100%);
+      border-color: #2a406b #4068a0 #4068a0 #2a406b;
+      color: #0a2040;
     }
+    .result.info::before { content: '† EL ORÁCULO HABLA †'; color: #2a406b; }
 
     .result.error {
-      background: #451a03;
-      border: 1px solid #ea580c;
-      color: #fdba74;
+      background: linear-gradient(180deg, #fff0e0 0%, #ffe0c0 100%);
+      border-color: #8B4513 #a06030 #a06030 #8B4513;
+      color: #4a2000;
     }
+    .result.error::before { content: '¡EL GRIMORIO RECHAZA!'; color: #8B4513; }
 
+    /* ─── range output ─── */
     .range-output {
-      margin-top: 0.75rem;
-      color: #cbd5e1;
-      font-family: 'Cascadia Code', 'Fira Code', monospace;
-      font-size: 0.875rem;
+      margin-top: 0.5rem;
+      color: #2a4a00;
+      font-family: 'VT323', 'Courier New', monospace;
+      font-size: 18px;
       line-height: 1.8;
       word-break: break-all;
     }
 
     .count {
-      color: #818cf8;
-      font-weight: 600;
-      margin-top: 0.5rem;
+      color: #8B6914;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 9px;
+      margin-top: 0.6rem;
+      text-align: center;
+      border-top: 2px solid #DAA520;
+      padding-top: 0.5rem;
+    }
+
+    /* ─── footer sigil ─── */
+    .sigil {
+      text-align: center;
+      margin-top: 1rem;
+      font-size: 14px;
+      color: #8B6914;
+      letter-spacing: 4px;
+      text-shadow: 1px 1px 0 #DAA520;
+    }
+
+    /* ─── mobile adjustments ─── */
+    @media (max-width: 480px) {
+      .card { padding: 1.2rem; }
+      .title-pixel { font-size: 10px; }
+      .tab { font-size: 7px; padding: 0.5rem 0.3rem; }
+      .btn { font-size: 9px; }
+      label { font-size: 8px; }
     }
   </style>
 </head>
 <body>
   <div class="card">
-    <h1>🔢 Verificador de Primos</h1>
-    <p class="subtitle">Comprobá si un número es primo o encontrá primos en un rango</p>
+    <!-- Title -->
+    <div class="title-area">
+      <span class="title-icon">🏰</span>
+      <span class="title-pixel">Torre del Mago</span>
+      <p class="subtitle">Oráculo de los Números Primos</p>
+    </div>
 
+    <!-- Tabs -->
     <div class="tabs">
-      <button class="tab active" data-panel="single">Verificar uno</button>
-      <button class="tab" data-panel="range">Listar rango</button>
+      <button class="tab active" data-panel="single">Piedra de Toque</button>
+      <button class="tab" data-panel="range">Explorar Reino</button>
     </div>
 
     <!-- Panel: verificar uno -->
     <div id="panel-single" class="panel active">
       <div class="field">
-        <label for="num">Número entero</label>
+        <label for="num">▼ Ofrenda numérica ▼</label>
         <input id="num" type="text" placeholder="Ej: 17" autocomplete="off">
       </div>
-      <button class="btn" onclick="verificar()">Verificar</button>
+      <button class="btn" onclick="verificar()">⚔ Invocar Sabiduría</button>
       <div id="result-single" class="result"></div>
     </div>
 
@@ -190,17 +382,19 @@
     <div id="panel-range" class="panel">
       <div class="row">
         <div class="field" style="flex:1;">
-          <label for="inicio">Desde</label>
+          <label for="inicio">▼ Frontera baja ▼</label>
           <input id="inicio" type="text" placeholder="Ej: 10" autocomplete="off">
         </div>
         <div class="field" style="flex:1;">
-          <label for="fin">Hasta</label>
+          <label for="fin">▼ Frontera alta ▼</label>
           <input id="fin" type="text" placeholder="Ej: 50" autocomplete="off">
         </div>
       </div>
-      <button class="btn" onclick="listarRango()">Buscar primos</button>
+      <button class="btn" onclick="listarRango()">🗺 Explorar el Reino</button>
       <div id="result-range" class="result"></div>
     </div>
+
+    <div class="sigil">✦ ⚔ ✦</div>
   </div>
 
   <script>
@@ -224,18 +418,18 @@
     }
 
     function parseEntero(raw, label) {
-      if (raw.trim() === '') return { error: `El campo "${label}" está vacío.` };
+      if (raw.trim() === '') return { error: `El campo "${label}" está vacío, noble visitante.` };
       const n = Number(raw);
-      if (!Number.isInteger(n)) return { error: `"${raw}" no es un número entero válido.` };
+      if (!Number.isInteger(n)) return { error: `"${raw}" no es un número digno de este reino.` };
       return { value: n };
     }
 
     // ─── verificar uno ───
     function verificar() {
       const raw = document.getElementById('num').value;
-      const parsed = parseEntero(raw, 'Número');
+      const parsed = parseEntero(raw, 'Ofrenda');
       if (parsed.error) {
-        showResult('result-single', 'error', '⚠️ ' + parsed.error);
+        showResult('result-single', 'error', '⚡ ' + parsed.error);
         return;
       }
       const n = parsed.value;
@@ -243,19 +437,21 @@
         showResult(
           'result-single',
           'success',
-          `<strong>${n.toLocaleString()}</strong> ✅ es primo.`
+          `<strong>${n.toLocaleString()}</strong> — ¡Por la espada del Rey! ¡ES PRIMO!<br>
+          <span style="font-size:14px;">Este número pertenece a la nobleza matemática.</span>`
         );
       } else if (n < 2) {
         showResult(
           'result-single',
           'info',
-          `<strong>${n.toLocaleString()}</strong> ℹ️ no es primo (por definición, los números menores que 2 no son primos).`
+          `<strong>${n.toLocaleString()}</strong> — Ni siquiera los magos más antiguos consideran esto un primo.<br>
+          <span style="font-size:14px;">(Por decreto real, solo números ≥ 2 pueden ser primos.)</span>`
         );
       } else {
         showResult(
           'result-single',
           'fail',
-          `<strong>${n.toLocaleString()}</strong> ❌ NO es primo.`
+          `<strong>${n.toLocaleString()}</strong> — ¡Un plebeyo! Este número es divisible y no porta el escudo de los primos.`
         );
       }
     }
@@ -264,28 +460,32 @@
     function listarRango() {
       const rawInicio = document.getElementById('inicio').value;
       const rawFin = document.getElementById('fin').value;
-      const pi = parseEntero(rawInicio, 'Desde');
-      if (pi.error) { showResult('result-range', 'error', '⚠️ ' + pi.error); return; }
-      const pf = parseEntero(rawFin, 'Hasta');
-      if (pf.error) { showResult('result-range', 'error', '⚠️ ' + pf.error); return; }
+      const pi = parseEntero(rawInicio, 'Frontera baja');
+      if (pi.error) { showResult('result-range', 'error', '⚡ ' + pi.error); return; }
+      const pf = parseEntero(rawFin, 'Frontera alta');
+      if (pf.error) { showResult('result-range', 'error', '⚡ ' + pf.error); return; }
 
       let inicio = pi.value;
       let fin = pf.value;
       if (inicio > fin) {
-        showResult('result-range', 'error', `⚠️ El inicio (${inicio}) no puede ser mayor que el fin (${fin}).`);
-        return;
-      }
-
-      const primos = [];
-      if (fin - inicio > 100_000) {
         showResult(
           'result-range',
           'error',
-          '⚠️ El rango es muy grande (más de 100.000 números). Probá con un rango más chico.'
+          `⚡ Las murallas están invertidas: ${inicio} no puede ser la frontera baja si ${fin} es la alta.`
         );
         return;
       }
 
+      if (fin - inicio > 100_000) {
+        showResult(
+          'result-range',
+          'error',
+          '⚡ ¡Este reino es demasiado vasto! (más de 100.000 súbditos). Acotá tus dominios.'
+        );
+        return;
+      }
+
+      const primos = [];
       for (let i = inicio; i <= fin; i++) {
         if (esPrimo(i)) primos.push(i);
       }
@@ -294,7 +494,8 @@
         showResult(
           'result-range',
           'info',
-          `No hay primos entre <strong>${inicio.toLocaleString()}</strong> y <strong>${fin.toLocaleString()}</strong>.`
+          `Ni un solo noble entre <strong>${inicio.toLocaleString()}</strong> y <strong>${fin.toLocaleString()}</strong>.<br>
+          <span style="font-size:14px;">Estas tierras están desoladas.</span>`
         );
       } else {
         const lines = [];
@@ -305,7 +506,7 @@
           'result-range',
           'success',
           `<div class="range-output">${lines.join('<br>')}</div>
-           <div class="count">📊 ${primos.length.toLocaleString()} primos entre ${inicio.toLocaleString()} y ${fin.toLocaleString()}</div>`
+           <div class="count">† ${primos.length.toLocaleString()} nobles portadores del escudo primo<br>entre ${inicio.toLocaleString()} y ${fin.toLocaleString()}</div>`
         );
       }
     }

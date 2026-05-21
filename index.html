@@ -343,13 +343,177 @@
       text-shadow: 1px 1px 0 #DAA520;
     }
 
+    /* ─── sieve grid ─── */
+    .sieve-card {
+      max-width: 620px !important;
+    }
+
+    .sieve-controls {
+      display: flex;
+      gap: 0.75rem;
+      align-items: end;
+      margin-bottom: 0.8rem;
+    }
+
+    .sieve-controls .field { margin-bottom: 0; flex: 2; }
+
+    .speed-label {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 7px;
+      color: #4a2a00;
+      white-space: nowrap;
+    }
+
+    .speed-slider {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 8px;
+      background: linear-gradient(90deg, #DAA520, #8B6914);
+      border: 2px solid #5a3a00;
+      outline: none;
+      image-rendering: pixelated;
+    }
+
+    .speed-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 16px;
+      height: 16px;
+      background: #FFD700;
+      border: 2px solid #5a3a00;
+      cursor: pointer;
+      box-shadow: 2px 2px 0 #3a1a00;
+    }
+
+    .sieve-scroll {
+      max-height: 400px;
+      overflow-y: auto;
+      padding: 0.5rem;
+      border: 4px solid;
+      border-color: #5a3a00 #DAA520 #DAA520 #5a3a00;
+      background: rgba(0,0,0,0.2);
+      margin-bottom: 0.8rem;
+    }
+
+    .sieve-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(36px, 1fr));
+      gap: 3px;
+      justify-content: center;
+    }
+
+    .sieve-cell {
+      aspect-ratio: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 8px;
+      border: 2px solid #5a3a00;
+      background: linear-gradient(135deg, #f5e6c8 0%, #e8d5a3 40%, #dcc58a 100%);
+      color: #3a1a00;
+      cursor: default;
+      image-rendering: pixelated;
+      transition: background 0.15s, border-color 0.15s, color 0.15s;
+      position: relative;
+    }
+
+    .sieve-cell::after {
+      content: '';
+      position: absolute;
+      top: 2px; left: 2px; right: 2px; height: 40%;
+      background: linear-gradient(180deg, rgba(255,215,0,0.5) 0%, transparent 100%);
+      border-radius: 1px;
+    }
+
+    /* torched extinguished — composite */
+    .sieve-cell.composite {
+      background: linear-gradient(135deg, #3a2a10 0%, #1a1005 40%, #0d0803 100%);
+      border-color: #2a1a00;
+      color: #5a4a30;
+    }
+    .sieve-cell.composite::after { background: none; }
+
+    /* currently marking as composite */
+    .sieve-cell.marking {
+      animation: torch-flicker 0.4s ease-out;
+      background: linear-gradient(135deg, #6b4a20 0%, #4a2a10 50%, #1a1005 100%);
+      border-color: #DAA520;
+      color: #FFD700;
+    }
+
+    @keyframes torch-flicker {
+      0%   { background: radial-gradient(circle at center, #FFD700, #f5e6c8); border-color: #FFD700; color: #3a1a00; transform: scale(1.08); }
+      30%  { background: radial-gradient(circle at center, #FF8C00, #8B4513); border-color: #FF8C00; }
+      60%  { background: radial-gradient(circle at center, #DAA520, #6b5030); border-color: #DAA520; }
+      100% { background: linear-gradient(135deg, #3a2a10 0%, #1a1005 40%, #0d0803 100%); border-color: #2a1a00; color: #5a4a30; }
+    }
+
+    /* current prime being processed */
+    .sieve-cell.current {
+      background: radial-gradient(circle at center, #FFD700 0%, #DAA520 50%, #B8860B 100%);
+      border-color: #FFD700;
+      color: #1a0a00;
+      box-shadow: 0 0 12px rgba(255,215,0,0.6), 0 0 24px rgba(255,215,0,0.3);
+      z-index: 1;
+    }
+
+    /* discovered prime — torch stays lit bright */
+    .sieve-cell.prime {
+      background: radial-gradient(circle at center, #FFD700 20%, #DAA520 50%, #B8860B 100%);
+      border-color: #FFD700;
+      color: #1a0a00;
+      box-shadow: 0 0 8px rgba(255,215,0,0.4);
+    }
+
+    .sieve-legend {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      margin-top: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 7px;
+      color: #4a2a00;
+    }
+
+    .legend-swatch {
+      width: 14px; height: 14px;
+      border: 2px solid #5a3a00;
+    }
+
+    .legend-swatch.prime { background: radial-gradient(circle at center, #FFD700 20%, #DAA520 50%, #B8860B 100%); }
+    .legend-swatch.composite { background: linear-gradient(135deg, #3a2a10 0%, #1a1005 40%, #0d0803 100%); }
+    .legend-swatch.current { background: radial-gradient(circle at center, #FFD700 0%, #DAA520 50%, #B8860B 100%); }
+
+    .sieve-stats {
+      text-align: center;
+      margin-top: 0.5rem;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 8px;
+      color: #DAA520;
+      text-shadow: 1px 1px 0 #3a1a00;
+    }
+
     /* ─── mobile adjustments ─── */
     @media (max-width: 480px) {
       .card { padding: 1.2rem; }
+      .sieve-card { max-width: 100% !important; }
       .title-pixel { font-size: 10px; }
       .tab { font-size: 7px; padding: 0.5rem 0.3rem; }
       .btn { font-size: 9px; }
       label { font-size: 8px; }
+      .sieve-cell { font-size: 6px; }
+      .sieve-grid { grid-template-columns: repeat(auto-fill, minmax(28px, 1fr)); }
+      .sieve-controls { flex-direction: column; gap: 0.4rem; }
     }
   </style>
 </head>
@@ -366,6 +530,7 @@
     <div class="tabs">
       <button class="tab active" data-panel="single">Piedra de Toque</button>
       <button class="tab" data-panel="range">Explorar Reino</button>
+      <button class="tab" data-panel="sieve">Criba Mágica</button>
     </div>
 
     <!-- Panel: verificar uno -->
@@ -392,6 +557,33 @@
       </div>
       <button class="btn" onclick="listarRango()">🗺 Explorar el Reino</button>
       <div id="result-range" class="result"></div>
+    </div>
+
+    <!-- Panel: Criba de Eratóstenes -->
+    <div id="panel-sieve" class="panel">
+      <div class="sieve-controls">
+        <div class="field">
+          <label for="sieve-max">▼ Límite del reino ▼</label>
+          <input id="sieve-max" type="text" value="100" placeholder="Ej: 100" autocomplete="off">
+        </div>
+        <div style="flex:1;">
+          <div class="speed-label">
+            <span>🐢</span>
+            <input type="range" class="speed-slider" id="sieve-speed" min="20" max="400" value="100">
+            <span>🐇</span>
+          </div>
+        </div>
+      </div>
+      <button class="btn" id="sieve-btn" onclick="iniciarCriba()">🔥 Encender Antorchas</button>
+      <div class="sieve-scroll">
+        <div id="sieve-grid" class="sieve-grid"></div>
+      </div>
+      <div id="sieve-stats" class="sieve-stats"></div>
+      <div class="sieve-legend">
+        <span class="legend-item"><span class="legend-swatch prime"></span> Primo</span>
+        <span class="legend-item"><span class="legend-swatch composite"></span> Compuesto</span>
+        <span class="legend-item"><span class="legend-swatch current"></span> Tamizando</span>
+      </div>
     </div>
 
     <div class="sigil">✦ ⚔ ✦</div>
@@ -511,6 +703,145 @@
       }
     }
 
+    // ═══════════════════════════════════════
+    //   CRIBA DE ERATÓSTENES ANIMADA
+    // ═══════════════════════════════════════
+
+    let sieveRunning = false;
+    let sieveAbort = false;
+
+    function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+    function iniciarCriba() {
+      if (sieveRunning) {
+        // Cancel current run
+        sieveAbort = true;
+        return;
+      }
+
+      const raw = document.getElementById('sieve-max').value;
+      const parsed = parseEntero(raw, 'Límite');
+      if (parsed.error) {
+        document.getElementById('sieve-stats').textContent = '⚡ ' + parsed.error;
+        return;
+      }
+
+      let n = parsed.value;
+      if (n < 2) {
+        document.getElementById('sieve-stats').textContent = '⚡ El reino debe tener al menos 2 súbditos.';
+        return;
+      }
+      if (n > 400) {
+        document.getElementById('sieve-stats').textContent = '⚡ Más de 400 antorchas agotarían al escriba real.';
+        return;
+      }
+
+      ejecutarCriba(n);
+    }
+
+    async function ejecutarCriba(n) {
+      sieveRunning = true;
+      sieveAbort = false;
+
+      const btn = document.getElementById('sieve-btn');
+      const originalText = btn.textContent;
+      btn.textContent = '⏸ Detener Ritual';
+      btn.style.background = 'linear-gradient(180deg, #a04040 0%, #6b2020 60%, #4a1010 100%)';
+      btn.style.borderColor = '#ff6060 #6b2020 #6b2020 #ff6060';
+
+      const grid = document.getElementById('sieve-grid');
+      const stats = document.getElementById('sieve-stats');
+
+      // Build grid: show numbers 2..n
+      grid.innerHTML = '';
+      for (let i = 2; i <= n; i++) {
+        const cell = document.createElement('div');
+        cell.className = 'sieve-cell';
+        cell.dataset.num = i;
+        cell.textContent = i;
+        grid.appendChild(cell);
+      }
+
+      stats.textContent = `⚜ ${n - 1} antorchas encendidas en el gran salón...`;
+
+      const speed = 420 - parseInt(document.getElementById('sieve-speed').value);
+      // speed ranges from 20ms (fastest = slider at 400 → 420-400=20) to 400ms (slowest = slider at 20 → 420-20=400)
+
+      // Sieve algorithm — we mark composites with animation
+      // We know all cells are candidates; 2 is the first prime.
+      // Strategy: iterate p from 2 to sqrt(n). If p hasn't been marked composite already,
+      // highlight it as "current", then mark all multiples as composite with animation.
+      const limit = Math.floor(Math.sqrt(n));
+
+      for (let p = 2; p <= limit; p++) {
+        if (sieveAbort) break;
+
+        const pCell = document.querySelector(`.sieve-cell[data-num="${p}"]`);
+        // Check if already marked composite (skip)
+        if (pCell && pCell.classList.contains('composite')) continue;
+
+        // Highlight current prime
+        if (pCell) {
+          pCell.classList.add('current');
+          stats.textContent = `⚜ El Mago examina el número ${p}...`;
+          await sleep(Math.floor(speed * 1.5));
+        }
+
+        // Mark multiples
+        let marked = 0;
+        for (let m = p * p; m <= n; m += p) {
+          if (sieveAbort) break;
+
+          const mCell = document.querySelector(`.sieve-cell[data-num="${m}"]`);
+          if (mCell && !mCell.classList.contains('composite')) {
+            mCell.classList.add('marking');
+
+            // After animation completes, switch to composite
+            await sleep(20); // tiny gap for the marking animation to start
+            mCell.classList.remove('marking');
+            mCell.classList.add('composite');
+            marked++;
+          }
+        }
+
+        // Done with this prime — mark it as prime
+        if (pCell) {
+          pCell.classList.remove('current');
+          pCell.classList.add('prime');
+        }
+
+        if (marked > 0) {
+          stats.textContent = `⚜ El Mago apagó ${marked} antorcha${marked > 1 ? 's' : ''} con el ${p}...`;
+          await sleep(speed);
+        }
+      }
+
+      // Mark remaining unmarked cells as primes
+      if (!sieveAbort) {
+        let primesFound = 0;
+        for (let i = 2; i <= n; i++) {
+          const cell = document.querySelector(`.sieve-cell[data-num="${i}"]`);
+          if (cell && !cell.classList.contains('composite') && !cell.classList.contains('prime')) {
+            cell.classList.add('prime');
+            primesFound++;
+          }
+        }
+
+        const totalPrimes = document.querySelectorAll('.sieve-cell.prime').length;
+        stats.textContent = `⚜ ¡Ritual completo! ${totalPrimes} nobles portan el escudo primo entre 2 y ${n}.`;
+      } else {
+        const primesSoFar = document.querySelectorAll('.sieve-cell.prime').length;
+        stats.textContent = `⚜ Ritual interrumpido. ${primesSoFar} primos revelados hasta ahora.`;
+      }
+
+      // Restore button
+      sieveRunning = false;
+      sieveAbort = false;
+      btn.textContent = originalText;
+      btn.style.background = '';
+      btn.style.borderColor = '';
+    }
+
     // ─── tabs ───
     document.querySelectorAll('.tab').forEach(tab => {
       tab.addEventListener('click', () => {
@@ -518,16 +849,30 @@
         document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
         tab.classList.add('active');
         document.getElementById('panel-' + tab.dataset.panel).classList.add('active');
+
+        // Expand card for sieve to fit wider grid
+        const card = document.querySelector('.card');
+        if (tab.dataset.panel === 'sieve') {
+          card.classList.add('sieve-card');
+        } else {
+          card.classList.remove('sieve-card');
+        }
       });
     });
 
     // ─── Enter key submits ───
     document.addEventListener('keydown', (e) => {
       if (e.key !== 'Enter') return;
-      if (document.getElementById('panel-single').classList.contains('active')) {
+      const singleActive = document.getElementById('panel-single').classList.contains('active');
+      const rangeActive = document.getElementById('panel-range').classList.contains('active');
+      const sieveActive = document.getElementById('panel-sieve').classList.contains('active');
+
+      if (singleActive) {
         verificar();
-      } else {
+      } else if (rangeActive) {
         listarRango();
+      } else if (sieveActive) {
+        iniciarCriba();
       }
     });
   </script>
